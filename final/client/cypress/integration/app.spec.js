@@ -3,10 +3,10 @@
 context('Apollo Fullstack Tests', () => {
   beforeEach(() => {
     cy.visit('/')
-    cy.get('.action-email')
-      .type('fake@email.com').should('have.value', 'fake@email.com')
+    cy.login()
   })
 
-  it('', () => {
+  it('logs in and loads the space explorer page', () => {
+    cy.get("h2").should("have.text", "Space Explorer")
   })
 })
