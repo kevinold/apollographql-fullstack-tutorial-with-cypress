@@ -13,11 +13,16 @@ const spin = keyframes`
 const Loading = styled(Logo)(size(64), {
   display: 'block',
   margin: 'auto',
-  fill: colors.grey,
+  fill: colors.primary,
   path: {
     transformOrigin: 'center',
     animation: `${spin} 1s linear infinite`,
   },
 });
+
+Loading.defaultProps = {
+  // @ts-ignore
+  "data-testid": "apollo-loading"
+}
 
 export default Loading;
