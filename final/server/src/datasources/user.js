@@ -35,8 +35,7 @@ class UserAPI extends DataSource {
   }
 
   async bookTrips({ launchIds }) {
-    const userId = this.context.user.id;
-    if (!userId) return;
+    if (!this.context || !this.context.user || !this.context.user.id) return [];
 
     let results = [];
 
