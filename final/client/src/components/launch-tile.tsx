@@ -21,7 +21,7 @@ const LaunchTile: React.FC<LaunchTileProps> = ({ launch }) => {
   const { id, mission, rocket } = launch;
   return (
     <StyledLink
-      data-testid={`launch-list-item-${id}`}
+      data-testid={`launch-list-tile-${id}`}
       to={`/launch/${id}`}
       style={{
         backgroundImage: getBackgroundImage(id),

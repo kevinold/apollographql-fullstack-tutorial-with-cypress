@@ -9,6 +9,7 @@ type LaunchDetailProps = Partial<LaunchDetails_launch>
 
 const LaunchDetail: React.FC<LaunchDetailProps> = ({ id, site, rocket }) => (
   <Card
+    data-testid="launch-detail-card"
     style={{
       backgroundImage: getBackgroundImage(id as string),
     }}
