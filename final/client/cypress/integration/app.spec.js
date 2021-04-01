@@ -96,7 +96,9 @@ context('Apollo Fullstack Tests', () => {
 
     cy.getBySel("book-button").click()
 
-    cy.wait("@gqlBookTripsMutation")
+    cy.wait("@gqlBookTripsMutation").then(resp => {
+      expect(resp.body.data.bookTrips.success).to.be.true
+    })
 
     cy.getBySel("empty-message").should("exist")
     
