@@ -4,10 +4,11 @@ const hasQueryOrMutation = (req, queryName) =>
 (req.body.hasOwnProperty("operationName") && req.body.operationName === (queryName)) ||
 (req.body.hasOwnProperty("query") && req.body.query.includes(queryName))
 
+const apiGraphQL = `${Cypress.env("apiUrl")}/graphql`;
+
 context('Apollo Fullstack Tests', () => {
   beforeEach(() => {
-
-    cy.intercept("POST", `${Cypress.env('apiUrl')}/graphql`, (req) => {
+    cy.intercept('POST', apiGraphQL, (req) => {
       const { body } = req
       if (hasQueryOrMutation(req, "Login")) {
         req.alias = "gqlIsUserLoggedInQuery";
@@ -45,22 +46,24 @@ context('Apollo Fullstack Tests', () => {
   })
 
   it('should not display the load more button on the launches page', () => {
-    cy.intercept("POST", `${Cypress.env('apiUrl')}/graphql`, (req) => {
+    cy.intercept('POST', apiGraphQL, (req) => {
       const { body } = req
-      console.log('in cy intercept override')
       if (hasQueryOrMutation(req, "GetLaunchList")) {
         req.alias = "gqlGetLaunchListQuery";
-        req.reply((res) => {
-          console.log('res', res)
-          //res.response.body.data.launches.hasMore = false
-          res.send("")
+        req.continue((res) => {
+          res.body.data.launches.hasMore = false
+          res.body.data.launches.launches = res.body.data.launches.launches.slice(5)
         })
       }
     });
+
+    // Must visit after cy.intercept
+    cy.visit('/')
+
     cy.wait("@gqlGetLaunchListQuery")
 
     cy.getBySelLike("launch-list-item").its("length").should("be.gte", 1)
-    cy.getBySelLike("launch-list-item").its("length").should("be.gte", 10)
+    cy.getBySelLike("launch-list-item").its("length").should("be.lt", 20)
 
     cy.getBySelLike("launches-load-more-button").should("not.exist")
   })
