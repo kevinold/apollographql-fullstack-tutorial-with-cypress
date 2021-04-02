@@ -34,7 +34,10 @@ context('Apollo Fullstack Tests', () => {
 
     cy.visit('/')
     cy.login(`testinguser${random(0,34523526214523452345)}@example.com`)
-    cy.wait("@gqlIsUserLoggedInQuery")
+    cy.wait("@gqlIsUserLoggedInQuery").then(resp => {
+      expect(resp.response.body.data.login.id).to.exist
+      expect(resp.response.body.data.login.token).to.exist
+    })
   })
 
   it('load the primary launches page', () => {
