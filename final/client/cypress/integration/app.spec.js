@@ -107,7 +107,7 @@ context('Apollo Fullstack Tests', () => {
 
     cy.getBySelLike("launch-list-tile").first().click()
 
-    //cy.getBySel("action-button")
-    //  .should("have.text", "Cancel Trip")
+    cy.getBySel("action-button")
+      .should("have.text", "Cancel This Trip")
   })
 })
