@@ -35,7 +35,6 @@ class UserAPI extends DataSource {
   }
 
   async bookTrips({ launchIds }) {
-    console.log('bookTrips', this.context)
     const userId = this.context.user.id;
 
     let results = [];
@@ -52,7 +51,6 @@ class UserAPI extends DataSource {
 
   async bookTrip({ launchId }) {
     const userId = this.context.user.id;
-    console.log('bookTrip', this.context)
     const res = await this.store.trips.findOrCreate({
       where: { userId, launchId },
     });
