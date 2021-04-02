@@ -26,6 +26,10 @@ context('Apollo Fullstack Tests', () => {
       if (hasQueryOrMutation(req, "BookTrips")) {
         req.alias = "gqlBookTripsMutation";
       }
+
+      if (hasQueryOrMutation(req, "GetMyTrips")) {
+        req.alias = "gqlGetMyTripsQuery";
+      }
     });
 
     cy.visit('/')
@@ -109,5 +113,11 @@ context('Apollo Fullstack Tests', () => {
 
     cy.getBySel("action-button")
       .should("have.text", "Cancel This Trip")
+
+    cy.getBySel("menu-profile").click()
+
+    cy.wait("@gqlGetMyTripsQuery")
+
+    cy.getBySelLike("launch-list-tile").its("length").should("be.gte", 1)
   })
 })
