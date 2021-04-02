@@ -1,40 +1,46 @@
 /// <reference types="cypress" />
 import { random } from 'lodash'
 
-const hasQueryOrMutation = (req, queryName) => 
-(req.body.hasOwnProperty("operationName") && req.body.operationName === (queryName)) ||
-(req.body.hasOwnProperty("query") && req.body.query.includes(queryName))
+const hasMutation = (req, operationName) => {
+  return req.body.hasOwnProperty("query") && req.body.query.includes(`mutation ${operationName}`)
+}
+
+const hasQuery = (req, operationName) => {
+  return req.body.hasOwnProperty("query") && req.body.query.includes(`query ${operationName}`)
+}
 
 const apiGraphQL = `${Cypress.env("apiUrl")}/graphql`;
 
 context('Apollo Fullstack Tests', () => {
   beforeEach(() => {
     cy.intercept('POST', apiGraphQL, (req) => {
-      const { body } = req
-      if (hasQueryOrMutation(req, "Login")) {
-        req.alias = "gqlIsUserLoggedInQuery";
-      }
+      // Queries
 
-      if (hasQueryOrMutation(req, "GetLaunchList")) {
+      if (hasQuery(req, "GetLaunchList")) {
         req.alias = "gqlGetLaunchListQuery";
       }
 
-      if (hasQueryOrMutation(req, "LaunchDetails")) {
+      if (hasQuery(req, "LaunchDetails")) {
         req.alias = "gqlLaunchDetailsQuery";
       }
+      if (hasQuery(req, "GetMyTrips")) {
+        req.alias = "gqlGetMyTripsQuery";
+      }
 
-      if (hasQueryOrMutation(req, "BookTrips")) {
+      // Mutations
+      if (hasMutation(req, "Login")) {
+        req.alias = "gqlIsUserLoggedInMutation";
+      }
+
+      if (hasMutation(req, "BookTrips")) {
         req.alias = "gqlBookTripsMutation";
       }
 
-      if (hasQueryOrMutation(req, "GetMyTrips")) {
-        req.alias = "gqlGetMyTripsQuery";
-      }
     });
 
     cy.visit('/')
     cy.login(`testinguser${random(0,34523526214523452345)}@example.com`)
-    cy.wait("@gqlIsUserLoggedInQuery").then(resp => {
+    cy.wait("@gqlIsUserLoggedInMutation").then(resp => {
       expect(resp.response.body.data.login.id).to.exist
       expect(resp.response.body.data.login.token).to.exist
     })
@@ -64,9 +70,9 @@ context('Apollo Fullstack Tests', () => {
   it('should not display the load more button on the launches page', () => {
     cy.intercept('POST', apiGraphQL, (req) => {
       const { body } = req
-      if (hasQueryOrMutation(req, "GetLaunchList")) {
+      if (hasQuery(req, "GetLaunchList")) {
         req.alias = "gqlGetLaunchListQuery";
-        req.continue((res) => {
+        req.reply((res) => {
           res.body.data.launches.hasMore = false
           res.body.data.launches.launches = res.body.data.launches.launches.slice(5)
         })
@@ -76,7 +82,10 @@ context('Apollo Fullstack Tests', () => {
     // Must visit after cy.intercept
     cy.visit('/')
 
-    cy.wait("@gqlGetLaunchListQuery")
+    cy.wait("@gqlGetLaunchListQuery").then(({ response: { body } }) => {
+      expect(body.data.launches.hasMore).to.be.false
+      expect(body.data.launches.launches.length).to.be.lte(20)
+    })
 
     cy.getBySelLike("launch-list-tile").its("length").should("be.gte", 1)
     cy.getBySelLike("launch-list-tile").its("length").should("be.lt", 20)
