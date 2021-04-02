@@ -1,6 +1,8 @@
 /// <reference types="cypress" />
 import { random } from 'lodash'
 
+const apiGraphQL = `${Cypress.env("apiUrl")}/graphql`;
+
 const hasMutation = (req, operationName) => {
   return req.body.hasOwnProperty("query") && req.body.query.includes(`mutation ${operationName}`)
 }
@@ -9,38 +11,34 @@ const hasQuery = (req, operationName) => {
   return req.body.hasOwnProperty("query") && req.body.query.includes(`query ${operationName}`)
 }
 
-const apiGraphQL = `${Cypress.env("apiUrl")}/graphql`;
+const aliasQuery = (req, operationName) => {
+  if (hasQuery(req, operationName)) {
+    req.alias = `gql${operationName}Query`
+  }
+}
+
+const aliasMutation = (req, operationName) => {
+  if (hasMutation(req, operationName)) {
+    req.alias = `gql${operationName}Mutation`
+  }
+}
 
 context('Apollo Fullstack Tests', () => {
   beforeEach(() => {
     cy.intercept('POST', apiGraphQL, (req) => {
       // Queries
-
-      if (hasQuery(req, "GetLaunchList")) {
-        req.alias = "gqlGetLaunchListQuery";
-      }
-
-      if (hasQuery(req, "LaunchDetails")) {
-        req.alias = "gqlLaunchDetailsQuery";
-      }
-      if (hasQuery(req, "GetMyTrips")) {
-        req.alias = "gqlGetMyTripsQuery";
-      }
+      aliasQuery(req, "GetLaunchList")
+      aliasQuery(req, "LaunchDetails")
+      aliasQuery(req, "GetMyTrips")
 
       // Mutations
-      if (hasMutation(req, "Login")) {
-        req.alias = "gqlIsUserLoggedInMutation";
-      }
-
-      if (hasMutation(req, "BookTrips")) {
-        req.alias = "gqlBookTripsMutation";
-      }
-
+      aliasMutation(req, "Login")
+      aliasMutation(req, "BookTrips")
     });
 
     cy.visit('/')
     cy.login(`testinguser${random(0,34523526214523452345)}@example.com`)
-    cy.wait("@gqlIsUserLoggedInMutation").then(resp => {
+    cy.wait("@gqlLoginMutation").then(resp => {
       expect(resp.response.body.data.login.id).to.exist
       expect(resp.response.body.data.login.token).to.exist
     })
