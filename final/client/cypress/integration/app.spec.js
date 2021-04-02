@@ -81,7 +81,7 @@ context('Apollo Fullstack Tests', () => {
     cy.getBySelLike("launches-load-more-button").should("not.exist")
   })
 
-  it.only('should book a trip on a launch', () => {
+  it('should book a trip on a launch', () => {
     cy.wait("@gqlGetLaunchListQuery")
 
     cy.getBySelLike("launch-list-tile").first().click()
