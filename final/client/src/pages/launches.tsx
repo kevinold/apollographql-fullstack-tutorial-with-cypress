@@ -45,7 +45,9 @@ const Launches: React.FC<LaunchesProps> = () => {
   } = useQuery<
     GetLaunchListTypes.GetLaunchList,
     GetLaunchListTypes.GetLaunchListVariables
-  >(GET_LAUNCHES);
+  >(GET_LAUNCHES, {
+    //pollInterval: 5000,
+  });
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   if (loading) return <Loading />;
