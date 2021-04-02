@@ -28,14 +28,17 @@ class UserAPI extends DataSource {
   async findOrCreateUser({ email: emailArg } = {}) {
     const email =
       this.context && this.context.user ? this.context.user.email : emailArg;
-    if (!email || !isEmail.validate(email)) return null;
+    console.log('email', email)
+    //if (!email || !isEmail.validate(email)) return null;
+
 
     const users = await this.store.users.findOrCreate({ where: { email } });
     return users && users[0] ? users[0] : null;
   }
 
   async bookTrips({ launchIds }) {
-    if (!this.context || !this.context.user || !this.context.user.id) return [];
+    console.log('bookTrips', this.context)
+    const userId = this.context.user.id;
 
     let results = [];
 
@@ -51,6 +54,7 @@ class UserAPI extends DataSource {
 
   async bookTrip({ launchId }) {
     const userId = this.context.user.id;
+    console.log('bookTrip', this.context)
     const res = await this.store.trips.findOrCreate({
       where: { userId, launchId },
     });
@@ -59,7 +63,8 @@ class UserAPI extends DataSource {
 
   async cancelTrip({ launchId }) {
     const userId = this.context.user.id;
-    return !!this.store.trips.destroy({ where: { userId, launchId } });
+    const numberOfDeletedTrips = await this.store.trips.destroy({ where: { userId, launchId } });
+    return numberOfDeletedTrips !== 0;
   }
 
   async getLaunchIdsByUser() {
