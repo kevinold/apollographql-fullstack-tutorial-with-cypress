@@ -1,27 +1,8 @@
 /// <reference types="cypress" />
 import { random } from 'lodash'
+import { hasQuery, aliasQuery, aliasMutation} from "../utils/graphql-test-utils"
 
 const apiGraphQL = `${Cypress.env("apiUrl")}/graphql`;
-
-const hasMutation = (req, operationName) => {
-  return req.body.hasOwnProperty("query") && req.body.query.includes(`mutation ${operationName}`)
-}
-
-const hasQuery = (req, operationName) => {
-  return req.body.hasOwnProperty("query") && req.body.query.includes(`query ${operationName}`)
-}
-
-const aliasQuery = (req, operationName) => {
-  if (hasQuery(req, operationName)) {
-    req.alias = `gql${operationName}Query`
-  }
-}
-
-const aliasMutation = (req, operationName) => {
-  if (hasMutation(req, operationName)) {
-    req.alias = `gql${operationName}Mutation`
-  }
-}
 
 context('Apollo Fullstack Tests', () => {
   beforeEach(() => {
